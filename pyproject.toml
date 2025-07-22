@@ -1,0 +1,19 @@
+[project]
+name = "festivos"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Gabriel Quinche",email = "gabrielquinche@hotmail.com"}
+]
+readme = "README.md"
+requires-python = "3.10.18"
+dependencies = [
+    "streamlit (>=1.47.0,<2.0.0)",
+    "holidays (>=0.77,<0.78)",
+    "pycountry (>=24.6.1,<25.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
