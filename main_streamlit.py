@@ -39,6 +39,41 @@ calendar_component = st.components.v2.component(
         const render = () => {
             const calEl = parentElement.querySelector("#calendar");
             calEl.innerHTML = '';
+
+            // Apply Streamlit Theme
+            const root = parentElement.querySelector("#calendar");
+
+            // By default, Streamlit injects theme variables into the shadow root.
+            // Let's get the computed styles to read those variables directly.
+            const stStyles = window.getComputedStyle(root);
+
+            const bgColor = stStyles.getPropertyValue('--st-background-color');
+            const textColor = stStyles.getPropertyValue('--st-text-color');
+            const primaryColor = stStyles.getPropertyValue('--st-primary-color');
+            const borderColor = stStyles.getPropertyValue('--st-border-color') || 'var(--st-secondary-background-color)';
+            const secondaryBgColor = stStyles.getPropertyValue('--st-secondary-background-color');
+
+            if (bgColor) root.style.setProperty('--fc-page-bg-color', bgColor);
+            if (textColor) {
+                root.style.setProperty('--fc-text-color', textColor);
+                // Also set the day grid text color for holidays so they contrast
+                root.style.setProperty('--fc-daygrid-event-color', textColor);
+            }
+            if (primaryColor) {
+                root.style.setProperty('--fc-event-bg-color', primaryColor);
+                root.style.setProperty('--fc-event-border-color', primaryColor);
+                root.style.setProperty('--fc-button-bg-color', primaryColor);
+                root.style.setProperty('--fc-button-border-color', primaryColor);
+            }
+            if (borderColor) {
+                root.style.setProperty('--fc-border-color', borderColor);
+            }
+            if (secondaryBgColor) {
+                root.style.setProperty('--fc-today-bg-color', secondaryBgColor);
+                root.style.setProperty('--fc-button-active-bg-color', secondaryBgColor);
+                root.style.setProperty('--fc-button-hover-bg-color', secondaryBgColor);
+            }
+
             const cal = new window.FullCalendar.Calendar(calEl, {
                 initialView: 'multiMonthYear',
                 initialDate: data.year + '-01-01',
@@ -130,7 +165,12 @@ def main(country="Colombia", year=date.today().year):
         {"title": name, "start": d.isoformat(), "allDay": True}
         for d, name in country_holidays.items()
     ]
-    calendar_component(data={"events": calendar_events, "year": str(year)})
+
+    theme_dict = {}
+    if st.context.theme:
+        theme_dict = dict(st.context.theme)
+
+    calendar_component(data={"events": calendar_events, "year": str(year), "theme": theme_dict})
 
     # Get the list of holidays
     holiday_list = [(d, name) for d, name in country_holidays.items()]
