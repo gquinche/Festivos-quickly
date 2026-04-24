@@ -7,7 +7,49 @@ import pycountry
 
 # do a chart with the holidays in Colombia
 # use light theme
-st.set_page_config(page_title="Colombia Holidays", layout="centered", initial_sidebar_state="expanded")
+
+calendar_component = st.components.v2.component(
+    "calendar",
+    html="""
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <div id="calendar"></div>
+    """,
+    js="""
+    export default function({ data, parentElement }) {
+        const render = () => {
+            const calEl = parentElement.querySelector("#calendar");
+            calEl.innerHTML = '';
+            const cal = new window.FullCalendar.Calendar(calEl, {
+                initialView: 'multiMonthYear',
+                initialDate: data.year + '-01-01',
+                events: data.events || [],
+                height: 'auto'
+            });
+            cal.render();
+        };
+
+        if (window.FullCalendar) {
+            render();
+        } else {
+            const check = setInterval(() => {
+                if (window.FullCalendar) {
+                    clearInterval(check);
+                    render();
+                }
+            }, 100);
+        }
+    }
+    """,
+    css="""
+    #calendar {
+        font-family: var(--st-font);
+        color: var(--st-text-color);
+        width: 100%;
+        min-height: 600px;
+    }
+    """
+)
+
 st.title("Holiday explorer")
 
 st.text("This app allows you to explore holidays in different countries. You can select a country to see its holidays for the current year, and compare holiday counts across multiple countries.")
@@ -24,8 +66,16 @@ def main(country="Colombia"):
     holiday_list = [(date, name) for date, name in country_holidays.items()]
 
     # Display the holidays in a table
-    st.write("### List of Holidays in Colombia")
+    st.write(f"### List of Holidays in {country}")
     st.table(holiday_list)
+
+    # Display the holidays in a calendar view
+    st.write(f"### Calendar of Holidays in {country}")
+    calendar_events = [
+        {"title": name, "start": date.isoformat(), "allDay": True}
+        for date, name in country_holidays.items()
+    ]
+    calendar_component(data={"events": calendar_events, "year": "2025"})
 
 from datetime import date
 
