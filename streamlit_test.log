@@ -6,90 +6,19 @@ Collecting usage statistics. To deactivate, set browser.gatherUsageStats to fals
 
   Local URL: http://localhost:8501
   Network URL: http://192.168.0.2:8501
-  External URL: http://34.27.142.64:8501
+  External URL: http://34.134.215.5:8501
 
-2026-04-24 17:33:36.429 Uncaught app execution
-Traceback (most recent call last):
-  File "/home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages/holidays/utils.py", line 217, in country_holidays
-    return getattr(holidays, country)(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: module 'holidays' has no attribute 'United States'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 129, in exec_func_with_error_handling
-    result = func()
-             ^^^^^^
-  File "/home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 689, in code_to_exec
-    exec(code, module.__dict__)  # noqa: S102
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/app/main_streamlit.py", line 146, in <module>
-    main(country=country_details, year=current_year)
-  File "/app/main_streamlit.py", line 79, in main
-    country_holidays = holidays.country_holidays(country, years=year)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages/holidays/utils.py", line 228, in country_holidays
-    raise NotImplementedError(f"Country {country} not available")
-NotImplementedError: Country United States not available
-2026-04-24 17:35:15.766 Uncaught app execution
-Traceback (most recent call last):
-  File "/home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 129, in exec_func_with_error_handling
-    result = func()
-             ^^^^^^
-  File "/home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 689, in code_to_exec
-    exec(code, module.__dict__)  # noqa: S102
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/app/main_streamlit.py", line 153, in <module>
-    main(country=country_details, year=current_year)
-  File "/app/main_streamlit.py", line 83, in main
-    country_holidays = holidays.country_holidays(iso_code, years=year)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/jules/.pyenv/versions/3.12.13/lib/python3.12/site-packages/holidays/utils.py", line 217, in country_holidays
-    return getattr(holidays, country)(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: attribute name must be string, not 'NoneType'
-2026-04-24 17:35:54.004 Please replace `use_container_width` with `width`.
+2026-04-24 18:57:26.786 Please replace `use_container_width` with `width`.
 
 `use_container_width` will be removed after 2025-12-31.
 
 For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'` or specify an integer width.
-2026-04-24 17:35:54.179 Please replace `use_container_width` with `width`.
+2026-04-24 18:57:26.953 Please replace `use_container_width` with `width`.
 
 `use_container_width` will be removed after 2025-12-31.
 
 For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'` or specify an integer width.
-2026-04-24 17:35:54.207 Please replace `use_container_width` with `width`.
-
-`use_container_width` will be removed after 2025-12-31.
-
-For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'` or specify an integer width.
-2026-04-24 17:37:20.350 Please replace `use_container_width` with `width`.
-
-`use_container_width` will be removed after 2025-12-31.
-
-For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'` or specify an integer width.
-2026-04-24 17:37:20.494 Please replace `use_container_width` with `width`.
-
-`use_container_width` will be removed after 2025-12-31.
-
-For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'` or specify an integer width.
-2026-04-24 17:37:20.531 Please replace `use_container_width` with `width`.
-
-`use_container_width` will be removed after 2025-12-31.
-
-For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'` or specify an integer width.
-2026-04-24 17:41:00.370 Please replace `use_container_width` with `width`.
-
-`use_container_width` will be removed after 2025-12-31.
-
-For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'` or specify an integer width.
-2026-04-24 17:41:00.524 Please replace `use_container_width` with `width`.
-
-`use_container_width` will be removed after 2025-12-31.
-
-For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'` or specify an integer width.
-2026-04-24 17:41:00.555 Please replace `use_container_width` with `width`.
+2026-04-24 18:57:27.009 Please replace `use_container_width` with `width`.
 
 `use_container_width` will be removed after 2025-12-31.
 

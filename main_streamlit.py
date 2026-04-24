@@ -60,17 +60,31 @@ from datetime import date
 import urllib.request
 import json
 
-@st.cache_data
 def get_inferred_country():
+    # 1. Try to use user IP address
+    ip_addr = st.context.ip_address
+    if ip_addr:
+        try:
+            with urllib.request.urlopen(f"http://ip-api.com/json/{ip_addr}", timeout=2) as url:
+                data = json.loads(url.read().decode())
+                country_name = data.get('country')
+                if country_name:
+                    return country_name
+        except:
+            pass
+
+    # 2. Try to fall back to browser locale
     try:
-        with urllib.request.urlopen("http://ip-api.com/json/", timeout=2) as url:
-            data = json.loads(url.read().decode())
-            # check if country is supported by looking it up in pycountry
-            country_name = data.get('country')
-            if country_name:
-                return country_name
+        locale = st.context.locale
+        if locale and "-" in locale:
+            country_iso = locale.split("-")[1].upper()
+            country = pycountry.countries.get(alpha_2=country_iso)
+            if country:
+                return country.name
     except:
         pass
+
+    # 3. Default fallback
     return "Colombia"
 
 def main(country="Colombia", year=date.today().year):
