@@ -8,6 +8,8 @@ import pycountry
 # do a chart with the holidays in Colombia
 # use light theme
 
+st.set_page_config(page_title="Holiday Explorer", layout="wide")
+
 calendar_component = st.components.v2.component(
     "calendar",
     html="""
@@ -54,30 +56,56 @@ st.title("Holiday explorer")
 
 st.text("This app allows you to explore holidays in different countries. You can select a country to see its holidays for the current year, and compare holiday counts across multiple countries.")
 
-def main(country="Colombia"):
+from datetime import date
+import urllib.request
+import json
+
+@st.cache_data
+def get_inferred_country():
+    try:
+        with urllib.request.urlopen("http://ip-api.com/json/", timeout=2) as url:
+            data = json.loads(url.read().decode())
+            # check if country is supported by looking it up in pycountry
+            country_name = data.get('country')
+            if country_name:
+                return country_name
+    except:
+        pass
+    return "Colombia"
+
+def main(country="Colombia", year=date.today().year):
     st.title(f"Holidays in {country}")
 
     # Create a holidays object for the selected country
-    country_to_iso = {country.name: country.alpha_2 for country in pycountry.countries if country.name == country}
-    country_holidays = holidays.country_holidays(country, years=2025)
+    country_to_iso = {c.name: c.alpha_2 for c in pycountry.countries}
+    iso_code = country_to_iso.get(country)
 
+    if not iso_code:
+        st.error(f"Could not find ISO code for {country}")
+        return
+
+    try:
+        # holidays uses ISO codes for lookup
+        country_holidays = holidays.country_holidays(iso_code, years=year)
+    except NotImplementedError:
+        st.error(f"Holiday data for {country} is currently not supported.")
+        return
+
+
+    # Display the holidays in a calendar view (First thing to show for the current year)
+    st.write(f"### Calendar of Holidays in {country} ({year})")
+    calendar_events = [
+        {"title": name, "start": d.isoformat(), "allDay": True}
+        for d, name in country_holidays.items()
+    ]
+    calendar_component(data={"events": calendar_events, "year": str(year)})
 
     # Get the list of holidays
-    holiday_list = [(date, name) for date, name in country_holidays.items()]
+    holiday_list = [(d, name) for d, name in country_holidays.items()]
 
     # Display the holidays in a table
     st.write(f"### List of Holidays in {country}")
     st.table(holiday_list)
-
-    # Display the holidays in a calendar view
-    st.write(f"### Calendar of Holidays in {country}")
-    calendar_events = [
-        {"title": name, "start": date.isoformat(), "allDay": True}
-        for date, name in country_holidays.items()
-    ]
-    calendar_component(data={"events": calendar_events, "year": "2025"})
-
-from datetime import date
 
 def get_holiday_summary(country,year,include_previous_5=True, include_next_5=True,only_working_days=True):
     """Get a summary of holidays for a given country and year."""
@@ -113,8 +141,24 @@ def get_country_comparison(countries,year=2025, include_previous_5=True, include
 
 
 if __name__ == "__main__":
-    st.set_page_config(page_title="Colombia Holidays", layout="wide")
     all_countries_names_and_iso = [(country.name, country.alpha_2) for country in pycountry.countries]
+
+    inferred_country = get_inferred_country()
+    # verify inferred country is in the list
+    if inferred_country not in [name for name, iso in all_countries_names_and_iso]:
+        inferred_country = "Colombia"
+
+    country_details = st.selectbox(
+        "Select a country to see its holidays for the current year",
+        options=[name for name, iso in all_countries_names_and_iso],
+        index=all_countries_names_and_iso.index((inferred_country, pycountry.countries.get(name=inferred_country).alpha_2))
+    )
+
+    current_year = date.today().year
+    main(country=country_details, year=current_year)
+
+    st.write("---")
+
     default_countries = ["Colombia", "United States", "Chile", "Mexico", "Brazil", "Costa Rica"]
     selected_countries = st.multiselect(
         "Select countries to compare holiday counts",
@@ -124,11 +168,11 @@ if __name__ == "__main__":
     # use holiday_counts for each country to build a line_chart merging all of them
     countries_holiday_counts = {}
     iso_countries = [country.alpha_2 for country in pycountry.countries if country.name in selected_countries]
-    countries_real_holiday_counts = get_country_comparison(iso_countries, year=2025,
+    countries_real_holiday_counts = get_country_comparison(iso_countries, year=current_year,
                                                        include_previous_5=True, include_next_5=True,
                                                        only_working_days=False)
     
-    countries_holiday_counts = get_country_comparison(iso_countries, year=2025,
+    countries_holiday_counts = get_country_comparison(iso_countries, year=current_year,
                                                        include_previous_5=True, include_next_5=True,
                                                        only_working_days=True)
 
@@ -148,14 +192,3 @@ if __name__ == "__main__":
     # create subtraction of the two dataframes
     delta_holidays =  pd.DataFrame(countries_real_holiday_counts) - pd.DataFrame(countries_holiday_counts)
     st.bar_chart(delta_holidays, use_container_width=True,width=800, height=400,x_label="Year")
-
-    # check actual holidays for this year
-
-    country_details = st.selectbox(
-        "Select a country to see its holidays for the current year",
-        options=[name for name, iso in all_countries_names_and_iso],
-        index=all_countries_names_and_iso.index(("Colombia", "CO"))  # default to Colombia
-    )
-
-
-    main(country=country_details)
