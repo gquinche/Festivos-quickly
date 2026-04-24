@@ -10,6 +10,24 @@ import pycountry
 
 st.set_page_config(page_title="Holiday Explorer", layout="wide")
 
+ip_fetcher_component = st.components.v2.component(
+    "ip_fetcher",
+    js="""
+    let fetched = false;
+    export default function({ setStateValue }) {
+        if (!fetched) {
+            fetched = true;
+            fetch('https://api.ipify.org')
+                .then(r => r.text())
+                .then(ip => setStateValue("ip", ip))
+                .catch(e => {
+                    setStateValue("ip", "");
+                });
+        }
+    }
+    """
+)
+
 calendar_component = st.components.v2.component(
     "calendar",
     html="""
@@ -60,9 +78,9 @@ from datetime import date
 import urllib.request
 import json
 
-def get_inferred_country():
+def get_inferred_country(client_ip=None):
     # 1. Try to use user IP address
-    ip_addr = st.context.ip_address
+    ip_addr = client_ip or st.context.ip_address
     if ip_addr:
         try:
             with urllib.request.urlopen(f"http://ip-api.com/json/{ip_addr}", timeout=2) as url:
@@ -155,9 +173,12 @@ def get_country_comparison(countries,year=2025, include_previous_5=True, include
 
 
 if __name__ == "__main__":
+    ip_res = ip_fetcher_component(default={"ip": None}, on_ip_change=lambda: None)
+    client_ip = ip_res.ip if ip_res else None
+
     all_countries_names_and_iso = [(country.name, country.alpha_2) for country in pycountry.countries]
 
-    inferred_country = get_inferred_country()
+    inferred_country = get_inferred_country(client_ip=client_ip)
     # verify inferred country is in the list
     if inferred_country not in [name for name, iso in all_countries_names_and_iso]:
         inferred_country = "Colombia"
