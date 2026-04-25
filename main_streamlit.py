@@ -193,7 +193,6 @@ def get_inferred_country(client_ip=None):
     return "Colombia"
 
 def main(country="Colombia", year=date.today().year):
-    st.title(f"Holidays in {country}")
 
     # Create a holidays object for the selected country
     country_to_iso = {c.name: c.alpha_2 for c in pycountry.countries}
@@ -212,7 +211,7 @@ def main(country="Colombia", year=date.today().year):
 
 
     # Display the holidays in a calendar view (First thing to show for the current year)
-    st.write(f"### Calendar of Holidays in {country} ({year})")
+    st.write(f"#### Holidays in {country}")
     calendar_events = [
         {"title": name, "start": d.isoformat(), "allDay": True}
         for d, name in country_holidays.items()
