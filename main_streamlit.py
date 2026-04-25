@@ -40,13 +40,8 @@ calendar_component = st.components.v2.component(
             const calEl = parentElement.querySelector("#calendar");
             calEl.innerHTML = '';
 
-            const isMobile = window.innerWidth < 600;
-
             // Apply Streamlit Theme
             const root = parentElement.querySelector("#calendar");
-
-            // By default, Streamlit injects theme variables into the shadow root.
-            // Let's get the computed styles to read those variables directly.
             const stStyles = window.getComputedStyle(root);
 
             const bgColor = stStyles.getPropertyValue('--st-background-color');
@@ -58,7 +53,6 @@ calendar_component = st.components.v2.component(
             if (bgColor) root.style.setProperty('--fc-page-bg-color', bgColor);
             if (textColor) {
                 root.style.setProperty('--fc-text-color', textColor);
-                // Also set the day grid text color for holidays so they contrast
                 root.style.setProperty('--fc-daygrid-event-color', textColor);
             }
             if (primaryColor) {
@@ -75,6 +69,8 @@ calendar_component = st.components.v2.component(
                 root.style.setProperty('--fc-button-active-bg-color', secondaryBgColor);
                 root.style.setProperty('--fc-button-hover-bg-color', secondaryBgColor);
             }
+
+            const isMobile = window.innerWidth <= 600;
 
             const cal = new window.FullCalendar.Calendar(calEl, {
                 initialView: 'multiMonthYear',
@@ -100,7 +96,7 @@ calendar_component = st.components.v2.component(
 
             let lastIsMobile = isMobile;
             const resizeObserver = new ResizeObserver(entries => {
-                const currentIsMobile = window.innerWidth < 600;
+                const currentIsMobile = window.innerWidth <= 600;
                 if (currentIsMobile !== lastIsMobile) {
                     lastIsMobile = currentIsMobile;
                     cal.setOption('headerToolbar', {
@@ -132,10 +128,30 @@ calendar_component = st.components.v2.component(
         width: 100%;
         min-height: 600px;
     }
+
     @media (max-width: 600px) {
-        .fc-toolbar.fc-header-toolbar {
-            flex-direction: column;
-            gap: 8px;
+        .fc .fc-toolbar.fc-header-toolbar {
+            flex-wrap: nowrap !important;
+            gap: 2px !important;
+            margin-bottom: 0.5em !important;
+        }
+        .fc .fc-toolbar-title {
+            font-size: 1.1em !important;
+            white-space: nowrap;
+        }
+        .fc .fc-button {
+            padding: 0.2em 0.4em !important;
+            font-size: 0.8em !important;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .fc .fc-toolbar-title {
+            font-size: 0.9em !important;
+        }
+        .fc .fc-button {
+            padding: 0.2em 0.3em !important;
+            font-size: 0.7em !important;
         }
     }
     """
@@ -177,6 +193,7 @@ def get_inferred_country(client_ip=None):
     return "Colombia"
 
 def main(country="Colombia", year=date.today().year):
+    st.title(f"Holidays in {country}")
 
     # Create a holidays object for the selected country
     country_to_iso = {c.name: c.alpha_2 for c in pycountry.countries}
@@ -195,17 +212,12 @@ def main(country="Colombia", year=date.today().year):
 
 
     # Display the holidays in a calendar view (First thing to show for the current year)
-    st.write(f"#### Holidays in {country} ({year})")
+    st.write(f"### Calendar of Holidays in {country} ({year})")
     calendar_events = [
         {"title": name, "start": d.isoformat(), "allDay": True}
         for d, name in country_holidays.items()
     ]
-
-    theme_dict = {}
-    if st.context.theme:
-        theme_dict = dict(st.context.theme)
-
-    calendar_component(data={"events": calendar_events, "year": str(year), "theme": theme_dict})
+    calendar_component(data={"events": calendar_events, "year": str(year)})
 
     # Get the list of holidays
     holiday_list = [(d, name) for d, name in country_holidays.items()]
