@@ -106,7 +106,7 @@ calendar_component = st.components.v2.component(
                     });
                 }
             });
-            resizeObserver.observe(parentElement);
+            resizeObserver.observe(calEl);
         };
 
         if (window.FullCalendar) {
