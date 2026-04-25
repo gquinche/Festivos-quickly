@@ -39,74 +39,13 @@ calendar_component = st.components.v2.component(
         const render = () => {
             const calEl = parentElement.querySelector("#calendar");
             calEl.innerHTML = '';
-
-            // Apply Streamlit Theme
-            const root = parentElement.querySelector("#calendar");
-            const stStyles = window.getComputedStyle(root);
-
-            const bgColor = stStyles.getPropertyValue('--st-background-color');
-            const textColor = stStyles.getPropertyValue('--st-text-color');
-            const primaryColor = stStyles.getPropertyValue('--st-primary-color');
-            const borderColor = stStyles.getPropertyValue('--st-border-color') || 'var(--st-secondary-background-color)';
-            const secondaryBgColor = stStyles.getPropertyValue('--st-secondary-background-color');
-
-            if (bgColor) root.style.setProperty('--fc-page-bg-color', bgColor);
-            if (textColor) {
-                root.style.setProperty('--fc-text-color', textColor);
-                root.style.setProperty('--fc-daygrid-event-color', textColor);
-            }
-            if (primaryColor) {
-                root.style.setProperty('--fc-event-bg-color', primaryColor);
-                root.style.setProperty('--fc-event-border-color', primaryColor);
-                root.style.setProperty('--fc-button-bg-color', primaryColor);
-                root.style.setProperty('--fc-button-border-color', primaryColor);
-            }
-            if (borderColor) {
-                root.style.setProperty('--fc-border-color', borderColor);
-            }
-            if (secondaryBgColor) {
-                root.style.setProperty('--fc-today-bg-color', secondaryBgColor);
-                root.style.setProperty('--fc-button-active-bg-color', secondaryBgColor);
-                root.style.setProperty('--fc-button-hover-bg-color', secondaryBgColor);
-            }
-
-            const isMobile = window.innerWidth <= 600;
-
             const cal = new window.FullCalendar.Calendar(calEl, {
                 initialView: 'multiMonthYear',
                 initialDate: data.year + '-01-01',
-                headerToolbar: {
-                    left: 'prev,next' + (isMobile ? '' : ' today'),
-                    center: 'title',
-                    right: isMobile ? 'multiMonthYear,listMonth' : 'multiMonthYear,dayGridMonth,listMonth'
-                },
-                buttonText: {
-                    today: 'Today',
-                    month: 'Month',
-                    list: 'List',
-                    year: 'Year',
-                    multiMonthYear: 'Year',
-                    dayGridMonth: 'Month',
-                    listMonth: 'List'
-                },
                 events: data.events || [],
                 height: 'auto'
             });
             cal.render();
-
-            let lastIsMobile = isMobile;
-            const resizeObserver = new ResizeObserver(entries => {
-                const currentIsMobile = window.innerWidth <= 600;
-                if (currentIsMobile !== lastIsMobile) {
-                    lastIsMobile = currentIsMobile;
-                    cal.setOption('headerToolbar', {
-                        left: 'prev,next' + (currentIsMobile ? '' : ' today'),
-                        center: 'title',
-                        right: currentIsMobile ? 'multiMonthYear,listMonth' : 'multiMonthYear,dayGridMonth,listMonth'
-                    });
-                }
-            });
-            resizeObserver.observe(parentElement);
         };
 
         if (window.FullCalendar) {
@@ -127,32 +66,6 @@ calendar_component = st.components.v2.component(
         color: var(--st-text-color);
         width: 100%;
         min-height: 600px;
-    }
-
-    @media (max-width: 600px) {
-        .fc .fc-toolbar.fc-header-toolbar {
-            flex-wrap: nowrap !important;
-            gap: 2px !important;
-            margin-bottom: 0.5em !important;
-        }
-        .fc .fc-toolbar-title {
-            font-size: 1.1em !important;
-            white-space: nowrap;
-        }
-        .fc .fc-button {
-            padding: 0.2em 0.4em !important;
-            font-size: 0.8em !important;
-        }
-    }
-
-    @media (max-width: 400px) {
-        .fc .fc-toolbar-title {
-            font-size: 0.9em !important;
-        }
-        .fc .fc-button {
-            padding: 0.2em 0.3em !important;
-            font-size: 0.7em !important;
-        }
     }
     """
 )
@@ -193,6 +106,7 @@ def get_inferred_country(client_ip=None):
     return "Colombia"
 
 def main(country="Colombia", year=date.today().year):
+    st.title(f"Holidays in {country}")
 
     # Create a holidays object for the selected country
     country_to_iso = {c.name: c.alpha_2 for c in pycountry.countries}
@@ -211,7 +125,7 @@ def main(country="Colombia", year=date.today().year):
 
 
     # Display the holidays in a calendar view (First thing to show for the current year)
-    st.write(f"#### Holidays in {country}")
+    st.write(f"### Calendar of Holidays in {country} ({year})")
     calendar_events = [
         {"title": name, "start": d.isoformat(), "allDay": True}
         for d, name in country_holidays.items()
