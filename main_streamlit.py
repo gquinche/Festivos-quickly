@@ -40,6 +40,8 @@ calendar_component = st.components.v2.component(
             const calEl = parentElement.querySelector("#calendar");
             calEl.innerHTML = '';
 
+            const isMobile = window.innerWidth < 600;
+
             // Apply Streamlit Theme
             const root = parentElement.querySelector("#calendar");
 
@@ -77,10 +79,38 @@ calendar_component = st.components.v2.component(
             const cal = new window.FullCalendar.Calendar(calEl, {
                 initialView: 'multiMonthYear',
                 initialDate: data.year + '-01-01',
+                headerToolbar: {
+                    left: 'prev,next' + (isMobile ? '' : ' today'),
+                    center: 'title',
+                    right: isMobile ? 'multiMonthYear,listMonth' : 'multiMonthYear,dayGridMonth,listMonth'
+                },
+                buttonText: {
+                    today: 'Today',
+                    month: 'Month',
+                    list: 'List',
+                    year: 'Year',
+                    multiMonthYear: 'Year',
+                    dayGridMonth: 'Month',
+                    listMonth: 'List'
+                },
                 events: data.events || [],
                 height: 'auto'
             });
             cal.render();
+
+            let lastIsMobile = isMobile;
+            const resizeObserver = new ResizeObserver(entries => {
+                const currentIsMobile = window.innerWidth < 600;
+                if (currentIsMobile !== lastIsMobile) {
+                    lastIsMobile = currentIsMobile;
+                    cal.setOption('headerToolbar', {
+                        left: 'prev,next' + (currentIsMobile ? '' : ' today'),
+                        center: 'title',
+                        right: currentIsMobile ? 'multiMonthYear,listMonth' : 'multiMonthYear,dayGridMonth,listMonth'
+                    });
+                }
+            });
+            resizeObserver.observe(parentElement);
         };
 
         if (window.FullCalendar) {
@@ -101,6 +131,12 @@ calendar_component = st.components.v2.component(
         color: var(--st-text-color);
         width: 100%;
         min-height: 600px;
+    }
+    @media (max-width: 600px) {
+        .fc-toolbar.fc-header-toolbar {
+            flex-direction: column;
+            gap: 8px;
+        }
     }
     """
 )
